@@ -49,6 +49,7 @@ zss_editor.init = function() {
     $(document).on('selectionchange',function(e){
                    zss_editor.calculateEditorHeightWithCaretPosition();
                    zss_editor.setScrollPosition();
+                   zss_editor.enabledEditingItems(e);
                    });
     
     $(window).on('scroll', function(e) {
@@ -60,6 +61,7 @@ zss_editor.init = function() {
                  zss_editor.isDragging = true;
                  zss_editor.updateScrollOffset = true;
                  zss_editor.setScrollPosition();
+                 zss_editor.enabledEditingItems(e);
                  });
     $(window).on('touchstart', function(e) {
                  zss_editor.isDragging = false;
@@ -111,22 +113,17 @@ zss_editor.setPlaceholder = function(placeholder) {
     var editor = $('#zss_editor_content');
     
     //set placeHolder
-    if(editor.text().length == 1){
-        editor.text(placeholder);
-        editor.css("color","gray");
-    }
-    //set focus
-    editor.focus(function(){
-                 if($(this).text() == placeholder){
-                 $(this).text("");
-                 $(this).css("color","black");
-                 }
-                 }).focusout(function(){
-                             if(!$(this).text().length){
-                             $(this).text(placeholder);
-                             $(this).css("color","gray");
-                             }
-                             });
+	editor.attr("placeholder",placeholder);
+	
+    //set focus			 
+	editor.focusout(function(){
+        var element = $(this);        
+        if (!element.text().trim().length) {
+            element.empty();
+        }
+    });
+	
+	
     
 }
 
@@ -152,7 +149,6 @@ zss_editor.calculateEditorHeightWithCaretPosition = function() {
     
     var padding = 50;
     var c = zss_editor.getCaretYPosition();
-    var e = document.getElementById('zss_editor_content');
     
     var editor = $('#zss_editor_content');
     
@@ -164,7 +160,7 @@ zss_editor.calculateEditorHeightWithCaretPosition = function() {
     if (c < offsetY) {
         newPos = c;
     } else if (c > (offsetY + height - padding)) {
-        var newPos = c - height + padding - 18;
+        newPos = c - height + padding - 18;
     }
     
     window.scrollTo(0, newPos);
@@ -328,13 +324,25 @@ zss_editor.setOutdent = function() {
     zss_editor.enabledEditingItems();
 }
 
+zss_editor.setFontFamily = function(fontFamily) {
+
+	zss_editor.restorerange();
+	document.execCommand("styleWithCSS", null, true);
+	document.execCommand("fontName", false, fontFamily);
+	document.execCommand("styleWithCSS", null, false);
+	zss_editor.enabledEditingItems();
+		
+}
+
 zss_editor.setTextColor = function(color) {
+		
     zss_editor.restorerange();
     document.execCommand("styleWithCSS", null, true);
     document.execCommand('foreColor', false, color);
     document.execCommand("styleWithCSS", null, false);
     zss_editor.enabledEditingItems();
     // document.execCommand("removeFormat", false, "foreColor"); // Removes just foreColor
+	
 }
 
 zss_editor.setBackgroundColor = function(color) {
@@ -399,6 +407,21 @@ zss_editor.updateImage = function(url, alt) {
     
 }//end
 
+zss_editor.updateImageBase64String = function(imageBase64String, alt) {
+    
+    zss_editor.restorerange();
+    
+    if (zss_editor.currentEditingImage) {
+        var c = zss_editor.currentEditingImage;
+        var src = 'data:image/jpeg;base64,' + imageBase64String;
+        c.attr('src', src);
+        c.attr('alt', alt);
+    }
+    zss_editor.enabledEditingItems();
+    
+}//end
+
+
 zss_editor.unlink = function() {
     
     if (zss_editor.currentEditingLink) {
@@ -447,6 +470,13 @@ zss_editor.prepareInsert = function() {
 zss_editor.insertImage = function(url, alt) {
     zss_editor.restorerange();
     var html = '<img src="'+url+'" alt="'+alt+'" />';
+    zss_editor.insertHTML(html);
+    zss_editor.enabledEditingItems();
+}
+
+zss_editor.insertImageBase64String = function(imageBase64String, alt) {
+    zss_editor.restorerange();
+    var html = '<img src="data:image/jpeg;base64,'+imageBase64String+'" alt="'+alt+'" />';
     zss_editor.insertHTML(html);
     zss_editor.enabledEditingItems();
 }
@@ -563,7 +593,8 @@ zss_editor.enabledEditingItems = function(e) {
     if (typeof(e) != "undefined") {
         
         // The target element
-        var t = $(e.target);
+        var s = zss_editor.getSelectedNode();
+        var t = $(s);
         var nodeName = e.target.nodeName.toLowerCase();
         
         // Background Color
@@ -576,6 +607,13 @@ zss_editor.enabledEditingItems = function(e) {
         if (textColor.length != 0 && textColor != 'rgba(0, 0, 0, 0)' && textColor != 'rgb(0, 0, 0)' && textColor != 'transparent') {
             items.push('textColor');
         }
+		
+		//Fonts
+		var font = t.css('font-family');
+		if (font.length != 0 && font != 'Arial, Helvetica, sans-serif') {
+			items.push('fonts');	
+		}
+		
         // Link
         if (nodeName == 'a') {
             zss_editor.currentEditingLink = t;
@@ -639,4 +677,22 @@ zss_editor.focusEditor = function() {
 
 zss_editor.blurEditor = function() {
     $('#zss_editor_content').blur();
-}//end
+}
+
+zss_editor.setCustomCSS = function(customCSS) {
+    
+    document.getElementsByTagName('style')[0].innerHTML=customCSS;
+    
+    //set focus
+    /*editor.focusout(function(){
+                    var element = $(this);
+                    if (!element.text().trim().length) {
+                    element.empty();
+                    }
+                    });*/
+    
+    
+    
+}
+
+//end

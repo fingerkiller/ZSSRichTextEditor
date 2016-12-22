@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "HRColorPickerViewController.h"
+#import "ZSSFontsViewController.h"
 
 /**
  *  The types of toolbar items that can be added
@@ -37,6 +38,7 @@ static NSString * const ZSSRichTextEditorToolbarHorizontalRule = @"com.zedsaid.t
 static NSString * const ZSSRichTextEditorToolbarIndent = @"com.zedsaid.toolbaritem.indent";
 static NSString * const ZSSRichTextEditorToolbarOutdent = @"com.zedsaid.toolbaritem.outdent";
 static NSString * const ZSSRichTextEditorToolbarInsertImage = @"com.zedsaid.toolbaritem.insertImage";
+static NSString * const ZSSRichTextEditorToolbarInsertImageFromDevice = @"com.zedsaid.toolbaritem.insertImageFromDevice";
 static NSString * const ZSSRichTextEditorToolbarInsertLink = @"com.zedsaid.toolbaritem.insertLink";
 static NSString * const ZSSRichTextEditorToolbarRemoveLink = @"com.zedsaid.toolbaritem.removeLink";
 static NSString * const ZSSRichTextEditorToolbarQuickLink = @"com.zedsaid.toolbaritem.quickLink";
@@ -46,13 +48,14 @@ static NSString * const ZSSRichTextEditorToolbarViewSource = @"com.zedsaid.toolb
 static NSString * const ZSSRichTextEditorToolbarParagraph = @"com.zedsaid.toolbaritem.paragraph";
 static NSString * const ZSSRichTextEditorToolbarAll = @"com.zedsaid.toolbaritem.all";
 static NSString * const ZSSRichTextEditorToolbarNone = @"com.zedsaid.toolbaritem.none";
+static NSString * const ZSSRichTextEditorToolbarFonts = @"com.zedsaid.toolbaritem.fonts";
 
 @class ZSSBarButtonItem;
 
 /**
  *  The viewController used with ZSSRichTextEditor
  */
-@interface ZSSRichTextEditor : UIViewController <UIWebViewDelegate, HRColorPickerViewControllerDelegate, UITextViewDelegate>
+@interface ZSSRichTextEditor : UIViewController <UIWebViewDelegate, HRColorPickerViewControllerDelegate, UITextViewDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate,ZSSFontsViewControllerDelegate>
 
 
 /**
@@ -69,6 +72,16 @@ static NSString * const ZSSRichTextEditorToolbarNone = @"com.zedsaid.toolbaritem
  *  If the keyboard should be shown when the editor loads
  */
 @property (nonatomic) BOOL shouldShowKeyboard;
+
+/**
+ * If the toolbar should always be shown or not
+ */
+@property (nonatomic) BOOL alwaysShowToolbar;
+
+/**
+ * If the sub class recieves text did change events or not
+ */
+@property (nonatomic) BOOL receiveEditorDidChangeEvents;
 
 /**
  *  The placeholder text to use if there is no editor content
@@ -193,5 +206,25 @@ static NSString * const ZSSRichTextEditorToolbarNone = @"com.zedsaid.toolbaritem
  *  Scroll event callback with position
  */
 - (void)editorDidScrollWithPosition:(NSInteger)position;
+
+/**
+ *  Text change callback with text and html
+ */
+- (void)editorDidChangeWithText:(NSString *)text andHTML:(NSString *)html;
+
+/**
+ *  Hashtag callback with word
+ */
+- (void)hashtagRecognizedWithWord:(NSString *)word;
+
+/**
+ *  Mention callback with word
+ */
+- (void)mentionRecognizedWithWord:(NSString *)word;
+
+/**
+ *  Set custom css
+ */
+- (void)setCSS:(NSString *)css;
 
 @end
