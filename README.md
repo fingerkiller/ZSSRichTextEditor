@@ -1,6 +1,26 @@
 ZSSRichTextEditor
 =============
 
+<<<<<<< Updated upstream
+=======
+
+
+
+先把B clone到本地
+git clone B_REPOSITORY_URL
+再cd到本地B的目录，把A作为一个remote加到本地的B中（一般命名为upstream）
+git remote add upstream A_REPOSITORY_URL
+pull另一个A的remote（upstream）的相应分支（比如master）就可以
+git pull upstream master
+最后push回github的B_REPOSITORY
+git push origin master
+
+
+Help Wanted
+---
+**Looking for anyone willing to help with this project. I have not had enough time to give the project the love it deserves. Contact me here or [@zedsaid](https://twitter.com/zedsaid).**
+
+>>>>>>> Stashed changes
 The Editor
 ---
 
